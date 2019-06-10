@@ -23,6 +23,8 @@ pub enum DisplayStyle {
     ///         found type `String`
     /// ```
     Rich,
+    /// Output a simple diagnostic, with notes and labels.
+    Simple,
     /// Output a short diagnostic, with a line number, severity, and message.
     ///
     /// ```text
@@ -153,10 +155,11 @@ pub fn emit(
     files: &Files,
     diagnostic: &Diagnostic,
 ) -> io::Result<()> {
-    use self::views::{RichDiagnostic, ShortDiagnostic};
+    use self::views::{RichDiagnostic, ShortDiagnostic, SimpleDiagnostic};
 
     match config.display_style {
         DisplayStyle::Rich => RichDiagnostic::new(files, diagnostic).emit(writer, config),
+        DisplayStyle::Simple => SimpleDiagnostic::new(files, diagnostic).emit(writer, config),
         DisplayStyle::Short => ShortDiagnostic::new(files, diagnostic).emit(writer, config),
     }
 }

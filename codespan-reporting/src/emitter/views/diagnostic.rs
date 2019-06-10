@@ -34,6 +34,27 @@ impl<'a> RichDiagnostic<'a> {
     }
 }
 
+/// Output a simple diagnostic, with a line number, severity, and message.
+pub struct SimpleDiagnostic<'a> {
+    files: &'a Files,
+    diagnostic: &'a Diagnostic,
+}
+
+impl<'a> SimpleDiagnostic<'a> {
+    pub fn new(files: &'a Files, diagnostic: &'a Diagnostic) -> SimpleDiagnostic<'a> {
+        SimpleDiagnostic { files, diagnostic }
+    }
+
+    pub fn emit(&self, writer: &mut impl WriteColor, config: &Config) -> io::Result<()> {
+        Header::new(self.diagnostic).emit(writer, config)?;
+
+        // TODO:  SourceNote::new_primary
+        // TODO:  SourceNote::new_secondary
+
+        Ok(())
+    }
+}
+
 /// Output a short diagnostic, with a line number, severity, and message.
 pub struct ShortDiagnostic<'a> {
     files: &'a Files,
