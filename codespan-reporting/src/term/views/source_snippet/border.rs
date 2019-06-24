@@ -12,8 +12,10 @@ impl BorderTopLeft {
     }
 
     pub fn emit(&self, writer: &mut impl WriteColor, config: &Config) -> io::Result<()> {
+        let top_left = config.source_border_top_left_char;
+
         writer.set_color(&config.styles.source_border)?;
-        write!(writer, "{top_left}", top_left = config.source_border_top_left_char)?;
+        write!(writer, "{top_left}", top_left = top_left)?;
         writer.reset()?;
 
         Ok(())
@@ -31,9 +33,11 @@ impl BorderTop {
     }
 
     pub fn emit(&self, writer: &mut impl WriteColor, config: &Config) -> io::Result<()> {
+        let top = config.source_border_top_char;
+
         writer.set_color(&config.styles.source_border)?;
         for _ in 0..self.width {
-            write!(writer, "{top}", top = config.source_border_top_char)?
+            write!(writer, "{top}", top = top)?
         }
         writer.reset()?;
 
@@ -50,8 +54,29 @@ impl BorderLeft {
     }
 
     pub fn emit(&self, writer: &mut impl WriteColor, config: &Config) -> io::Result<()> {
+        let left = config.source_border_left_char;
+
         writer.set_color(&config.styles.source_border)?;
-        write!(writer, "{left}", left = config.source_border_left_char)?;
+        write!(writer, "{left}", left = left)?;
+        writer.reset()?;
+
+        Ok(())
+    }
+}
+
+/// The broken left-hand border of a source line.
+pub struct BorderLeftBreak {}
+
+impl BorderLeftBreak {
+    pub fn new() -> BorderLeftBreak {
+        BorderLeftBreak {}
+    }
+
+    pub fn emit(&self, writer: &mut impl WriteColor, config: &Config) -> io::Result<()> {
+        let left = config.source_border_left_break_char;
+
+        writer.set_color(&config.styles.source_border)?;
+        write!(writer, "{left}", left = left)?;
         writer.reset()?;
 
         Ok(())

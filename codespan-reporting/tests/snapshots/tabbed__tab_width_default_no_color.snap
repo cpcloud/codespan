@@ -1,5 +1,5 @@
 ---
-created: "2019-06-23T06:38:18.143907Z"
+created: "2019-06-24T01:30:14.404015Z"
 creator: insta@0.8.1
 source: codespan-reporting/tests/term.rs
 expression: result
@@ -7,23 +7,23 @@ expression: result
 warning: unknown weapon `DogJaw`
 
    ┌── tabbed:3:11 ───
-   │
+   :
  3 │         Weapon: DogJaw
    │                 ^^^^^^ the weapon
-   │
+   :
 
 warning: unknown condition `attack-cooldown`
 
    ┌── tabbed:4:23 ───
-   │
+   :
  4 │         ReloadingCondition:    attack-cooldown
    │                                ^^^^^^^^^^^^^^^ the condition
-   │
+   :
 
 warning: unknown field `Foo`
 
    ┌── tabbed:5:2 ───
-   │
+   :
  5 │     Foo: Bar
    │     ^^^ the field
    │

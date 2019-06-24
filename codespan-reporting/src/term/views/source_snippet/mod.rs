@@ -12,7 +12,7 @@ mod gutter;
 mod note;
 mod underline;
 
-use self::border::{BorderLeft, BorderTop, BorderTopLeft};
+use self::border::{BorderLeft, BorderLeftBreak, BorderTop, BorderTopLeft};
 use self::gutter::Gutter;
 use self::note::Note;
 use self::underline::{
@@ -23,10 +23,10 @@ use self::underline::{
 ///
 /// ```text
 ///   ┌── test:2:9 ───
-///   │
+///   :
 /// 2 │ (+ test "")
 ///   │         ^^ expected `Int` but found `String`
-///   │
+///   :
 ///   = expected type `Int`
 ///        found type `String`
 /// ```
@@ -68,6 +68,11 @@ impl<'a> SourceSnippet<'a> {
 
     fn location(&self, byte_index: ByteIndex) -> Result<Location, impl std::error::Error> {
         self.files.location(self.file_id, byte_index)
+    }
+
+    fn eof_location(&self) -> Location {
+        let eof = self.files.source_span(self.file_id).end();
+        self.files.location(self.file_id, eof).expect("eof")
     }
 
     fn source_slice(&self, span: Span, tab: &'a str) -> Result<String, impl std::error::Error> {
@@ -115,15 +120,19 @@ impl<'a> SourceSnippet<'a> {
         // Code snippet
         //
         // ```text
-        //   │
+        //   :
         // 2 │ (+ test "")
         //   │         ^^ expected `Int` but found `String`
-        //   │
+        //   :
         // ```
 
         // Write initial border
         Gutter::new(None, gutter_padding).emit(writer, config)?;
-        BorderLeft::new().emit(writer, config)?;
+        if start.line == LineIndex(0) {
+            BorderLeft::new().emit(writer, config)?;
+        } else {
+            BorderLeftBreak::new().emit(writer, config)?;
+        }
         NewLine::new().emit(writer, config)?;
 
         let line_trimmer = |ch: char| ch == '\r' || ch == '\n';
@@ -301,7 +310,11 @@ impl<'a> SourceSnippet<'a> {
 
         // Write final border
         Gutter::new(None, gutter_padding).emit(writer, config)?;
-        BorderLeft::new().emit(writer, config)?;
+        if end.line == self.eof_location().line {
+            BorderLeft::new().emit(writer, config)?;
+        } else {
+            BorderLeftBreak::new().emit(writer, config)?;
+        }
         NewLine::new().emit(writer, config)?;
 
         // Additional notes

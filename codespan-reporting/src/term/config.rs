@@ -23,6 +23,9 @@ pub struct Config {
     /// The character to use for the left border of the source.
     /// Defaults to: `'│'`.
     pub source_border_left_char: char,
+    /// The character to use for border breaks to the left of the source.
+    /// Defaults to: `':'`.
+    pub source_border_left_break_char: char,
 
     /// The character to use for marking a primary label.
     /// Defaults to: `'^'`.
@@ -68,6 +71,7 @@ impl Default for Config {
             source_border_top_left_char: '┌',
             source_border_top_char: '─',
             source_border_left_char: '│',
+            source_border_left_break_char: ':',
 
             primary_caret_char: '^',
             secondary_caret_char: '-',
