@@ -8,6 +8,8 @@ use crate::diagnostic::Diagnostic;
 use crate::files::Files;
 
 mod config;
+mod display_list;
+mod renderer;
 mod views;
 
 pub use termcolor;
@@ -77,7 +79,7 @@ impl Into<ColorChoice> for ColorArg {
 
 /// Emit a diagnostic using the given writer, context, config, and files.
 pub fn emit<'files, F: Files<'files>>(
-    writer: &mut (impl WriteColor + ?Sized),
+    writer: &mut dyn WriteColor,
     config: &Config,
     files: &'files F,
     diagnostic: &Diagnostic<F::FileId>,
