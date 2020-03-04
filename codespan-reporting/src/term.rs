@@ -76,10 +76,10 @@ impl Into<ColorChoice> for ColorArg {
 }
 
 /// Emit a diagnostic using the given writer, context, config, and files.
-pub fn emit<'files, F: Files<'files>>(
+pub fn emit<F: Files>(
     writer: &mut (impl WriteColor + ?Sized),
     config: &Config,
-    files: &'files F,
+    files: &F,
     diagnostic: &Diagnostic<F::FileId>,
 ) -> io::Result<()> {
     use self::views::{RichDiagnostic, ShortDiagnostic};

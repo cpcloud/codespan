@@ -31,18 +31,18 @@ pub struct Mark<'a> {
 ///   │         ^^ expected `Int` but found `String`
 ///   │
 /// ```
-pub struct SourceSnippet<'a, 'files, F: Files<'files>> {
+pub struct SourceSnippet<'a, F: Files> {
     gutter_padding: usize,
     file_id: F::FileId,
     mark_group: MarkGroup<'a, F::Origin>,
 }
 
-impl<'a, 'files: 'a, F: Files<'files>> SourceSnippet<'a, 'files, F> {
+impl<'a, F: Files> SourceSnippet<'a, F> {
     pub fn new(
         gutter_padding: usize,
         file_id: F::FileId,
         mark_group: MarkGroup<'a, F::Origin>,
-    ) -> SourceSnippet<'a, 'files, F> {
+    ) -> SourceSnippet<'a, F> {
         SourceSnippet {
             gutter_padding,
             file_id,
@@ -52,7 +52,7 @@ impl<'a, 'files: 'a, F: Files<'files>> SourceSnippet<'a, 'files, F> {
 
     pub fn emit(
         &self,
-        files: &'files F,
+        files: &F,
         writer: &mut (impl WriteColor + ?Sized),
         config: &Config,
     ) -> io::Result<()> {

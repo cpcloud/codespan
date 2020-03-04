@@ -1,6 +1,7 @@
 //! Source file support for diagnostic reporting.
 
 use std::ops::Range;
+use std::sync::Arc;
 
 /// A line within a source file.
 pub struct Line {
@@ -15,22 +16,22 @@ pub struct Line {
 /// A lifetime parameter `'a` is provided to allow any of the returned values to returned by reference.
 /// This is to workaround the lack of higher kinded lifetime parameters.
 /// This can be ignored if this is not needed, however.
-pub trait Files<'a> {
-    type FileId: 'a + Copy + PartialEq;
-    type Origin: 'a + std::fmt::Display;
-    type Source: 'a + AsRef<str>;
+pub trait Files {
+    type FileId: Copy + PartialEq;
+    type Origin: std::fmt::Display;
+    type Source: AsRef<str>;
 
     /// The origin of a file.
-    fn origin(&'a self, id: Self::FileId) -> Option<Self::Origin>;
+    fn origin(&self, id: Self::FileId) -> Option<Self::Origin>;
 
     /// The line at the given index.
-    fn line(&'a self, id: Self::FileId, line_index: usize) -> Option<Line>;
+    fn line(&self, id: Self::FileId, line_index: usize) -> Option<Line>;
 
     /// The index of the line at the given byte index.
-    fn line_index(&'a self, id: Self::FileId, byte_index: usize) -> Option<usize>;
+    fn line_index(&self, id: Self::FileId, byte_index: usize) -> Option<usize>;
 
     /// The source of the file.
-    fn source(&'a self, id: Self::FileId) -> Option<Self::Source>;
+    fn source(&self, id: Self::FileId) -> Option<Self::Source>;
 }
 
 /// A single source file.
@@ -38,11 +39,11 @@ pub trait Files<'a> {
 /// This is useful for simple language tests, but it might be worth creating a
 /// custom implementation when a language scales beyond a certain size.
 #[derive(Debug, Clone)]
-pub struct SimpleFile<Origin, Source> {
+pub struct SimpleFile<Origin> {
     /// The origin of the file.
     origin: Origin,
     /// The source code of the file.
-    source: Source,
+    source: Arc<str>,
     /// The starting byte indices in the source code.
     line_starts: Vec<usize>,
 }
@@ -114,16 +115,16 @@ pub fn column_number(line_source: &str, line_start: usize, byte_index: usize) ->
     column_index(line_source, line_start, byte_index) + 1
 }
 
-impl<Origin, Source> SimpleFile<Origin, Source>
+impl<Origin> SimpleFile<Origin>
 where
     Origin: std::fmt::Display,
-    Source: AsRef<str>,
 {
     /// Create a new source file.
-    pub fn new(origin: Origin, source: Source) -> SimpleFile<Origin, Source> {
+    pub fn new(origin: Origin, source: impl Into<Arc<str>>) -> SimpleFile<Origin> {
+        let source = source.into();
         SimpleFile {
             origin,
-            line_starts: line_starts(source.as_ref()).collect(),
+            line_starts: line_starts(&source).collect(),
             source,
         }
     }
@@ -134,7 +135,7 @@ where
     }
 
     /// Return the source of the file.
-    pub fn source(&self) -> &Source {
+    pub fn source(&self) -> &Arc<str> {
         &self.source
     }
 
@@ -156,14 +157,13 @@ where
     }
 }
 
-impl<'a, Origin, Source> Files<'a> for SimpleFile<Origin, Source>
+impl<Origin> Files for SimpleFile<Origin>
 where
-    Origin: 'a + std::fmt::Display + Clone,
-    Source: 'a + AsRef<str>,
+    Origin: std::fmt::Display + Clone,
 {
     type FileId = ();
     type Origin = Origin;
-    type Source = &'a str;
+    type Source = Arc<str>;
 
     fn origin(&self, (): ()) -> Option<Origin> {
         Some(self.origin.clone())
@@ -183,8 +183,8 @@ where
         })
     }
 
-    fn source(&self, (): ()) -> Option<&str> {
-        Some(self.source.as_ref())
+    fn source(&self, (): ()) -> Option<Arc<str>> {
+        Some(self.source.clone())
     }
 }
 
@@ -193,42 +193,40 @@ where
 /// This is useful for simple language tests, but it might be worth creating a
 /// custom implementation when a language scales beyond a certain size.
 #[derive(Debug, Clone)]
-pub struct SimpleFiles<Origin, Source> {
-    files: Vec<SimpleFile<Origin, Source>>,
+pub struct SimpleFiles<Origin> {
+    files: Vec<SimpleFile<Origin>>,
 }
 
-impl<Origin, Source> SimpleFiles<Origin, Source>
+impl<Origin> SimpleFiles<Origin>
 where
     Origin: std::fmt::Display,
-    Source: AsRef<str>,
 {
     /// Create a new files database.
-    pub fn new() -> SimpleFiles<Origin, Source> {
+    pub fn new() -> SimpleFiles<Origin> {
         SimpleFiles { files: Vec::new() }
     }
 
     /// Add a file to the database, returning the handle that can be used to
     /// refer to it again.
-    pub fn add(&mut self, origin: Origin, source: Source) -> usize {
+    pub fn add(&mut self, origin: Origin, source: impl Into<Arc<str>>) -> usize {
         let file_id = self.files.len();
         self.files.push(SimpleFile::new(origin, source));
         file_id
     }
 
     /// Get the file corresponding to the given id.
-    pub fn get(&self, file_id: usize) -> Option<&SimpleFile<Origin, Source>> {
+    pub fn get(&self, file_id: usize) -> Option<&SimpleFile<Origin>> {
         self.files.get(file_id)
     }
 }
 
-impl<'a, Origin, Source> Files<'a> for SimpleFiles<Origin, Source>
+impl<Origin> Files for SimpleFiles<Origin>
 where
-    Origin: 'a + std::fmt::Display + Clone,
-    Source: 'a + AsRef<str>,
+    Origin: std::fmt::Display + Clone,
 {
     type FileId = usize;
     type Origin = Origin;
-    type Source = &'a str;
+    type Source = Arc<str>;
 
     fn origin(&self, file_id: usize) -> Option<Origin> {
         Some(self.get(file_id)?.origin().clone())
@@ -242,8 +240,8 @@ where
         self.get(file_id)?.line((), line_index)
     }
 
-    fn source(&self, file_id: usize) -> Option<&str> {
-        Some(self.get(file_id)?.source().as_ref())
+    fn source(&self, file_id: usize) -> Option<Arc<str>> {
+        Some(self.get(file_id)?.source().clone())
     }
 }
 

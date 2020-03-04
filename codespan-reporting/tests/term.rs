@@ -65,7 +65,7 @@ mod empty {
     use super::*;
 
     lazy_static::lazy_static! {
-        static ref TEST_DATA: TestData<'static, SimpleFiles<&'static str, &'static str>> = {
+        static ref TEST_DATA: TestData<SimpleFiles<&'static str>> = {
             let files = SimpleFiles::new();
 
             let diagnostics = vec![
@@ -91,7 +91,7 @@ mod message {
     use super::*;
 
     lazy_static::lazy_static! {
-        static ref TEST_DATA: TestData<'static, SimpleFiles<&'static str, &'static str>> = {
+        static ref TEST_DATA: TestData<SimpleFiles<&'static str>> = {
             let files = SimpleFiles::new();
 
             let diagnostics = vec![
@@ -115,7 +115,7 @@ mod message_and_notes {
     use super::*;
 
     lazy_static::lazy_static! {
-        static ref TEST_DATA: TestData<'static, SimpleFiles<&'static str, &'static str>> = {
+        static ref TEST_DATA: TestData<SimpleFiles<&'static str>> = {
             let files = SimpleFiles::new();
 
             let diagnostics = vec![
@@ -139,7 +139,7 @@ mod empty_spans {
     use super::*;
 
     lazy_static::lazy_static! {
-        static ref TEST_DATA: TestData<'static, SimpleFile<&'static str, &'static str>> = {
+        static ref TEST_DATA: TestData<SimpleFile<&'static str>> = {
             let file = SimpleFile::new("hello", "Hello world!\nBye world!");
             let eof = file.source().len();
 
@@ -169,7 +169,7 @@ mod multifile {
     use super::*;
 
     lazy_static::lazy_static! {
-        static ref TEST_DATA: TestData<'static, SimpleFiles<&'static str, String>> = {
+        static ref TEST_DATA: TestData<SimpleFiles<&'static str>> = {
             let mut files = SimpleFiles::new();
 
             let file_id1 = files.add(
@@ -247,7 +247,7 @@ mod fizz_buzz {
     use super::*;
 
     lazy_static::lazy_static! {
-        static ref TEST_DATA: TestData<'static, SimpleFiles<&'static str, String>> = {
+        static ref TEST_DATA: TestData<SimpleFiles<&'static str>> = {
             let mut files = SimpleFiles::new();
 
             let file_id = files.add(
@@ -322,7 +322,7 @@ mod tabbed {
     use super::*;
 
     lazy_static::lazy_static! {
-        static ref TEST_DATA: TestData<'static, SimpleFiles<&'static str, String>> = {
+        static ref TEST_DATA: TestData<SimpleFiles<&'static str>> = {
             let mut files = SimpleFiles::new();
 
             let file_id = files.add(

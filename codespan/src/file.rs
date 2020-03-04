@@ -295,13 +295,13 @@ where
 }
 
 #[cfg(feature = "reporting")]
-impl<'a, Source> codespan_reporting::files::Files<'a> for Files<Source>
+impl<Source> codespan_reporting::files::Files for Files<Source>
 where
-    Source: AsRef<str>,
+    Source: Clone + AsRef<str>,
 {
     type FileId = FileId;
     type Origin = String;
-    type Source = &'a str;
+    type Source = Source;
 
     fn origin(&self, id: FileId) -> Option<String> {
         use std::path::PathBuf;
@@ -313,7 +313,7 @@ where
         Some(self.line_index(id, byte_index as u32).to_usize())
     }
 
-    fn line(&'a self, id: FileId, line_index: usize) -> Option<codespan_reporting::files::Line> {
+    fn line(&self, id: FileId, line_index: usize) -> Option<codespan_reporting::files::Line> {
         let span = self.line_span(id, line_index as u32).ok()?;
 
         Some(codespan_reporting::files::Line {
@@ -322,8 +322,8 @@ where
         })
     }
 
-    fn source(&'a self, id: FileId) -> Option<&'a str> {
-        Some(self.source(id).as_ref())
+    fn source(&self, id: FileId) -> Option<Source> {
+        Some(self.source(id).clone())
     }
 }
 

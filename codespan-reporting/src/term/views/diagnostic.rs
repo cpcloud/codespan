@@ -40,7 +40,7 @@ where
 
     pub fn emit<'files>(
         &self,
-        files: &'files impl Files<'files, FileId = FileId>,
+        files: &'files impl Files<FileId = FileId>,
         writer: &mut (impl WriteColor + ?Sized),
         config: &Config,
     ) -> io::Result<()>
@@ -158,7 +158,7 @@ where
 
     pub fn emit<'files>(
         &self,
-        files: &'files impl Files<'files, FileId = FileId>,
+        files: &'files impl Files<FileId = FileId>,
         writer: &mut (impl WriteColor + ?Sized),
         config: &Config,
     ) -> io::Result<()>
