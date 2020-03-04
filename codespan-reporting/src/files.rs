@@ -120,7 +120,8 @@ pub struct SimpleFile<Origin, Source> {
     line_starts: Vec<usize>,
 }
 
-fn line_starts<'a>(source: &'a str) -> impl 'a + Iterator<Item = usize> {
+/// Return the starting byte index of each line in the source string.
+pub fn line_starts<'source>(source: &'source str) -> impl 'source + Iterator<Item = usize> {
     std::iter::once(0).chain(source.match_indices('\n').map(|(i, _)| i + 1))
 }
 
