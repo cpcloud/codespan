@@ -3,7 +3,7 @@ use std::ops::Range;
 use termcolor::WriteColor;
 
 use crate::diagnostic::{Diagnostic, LabelStyle};
-use crate::files::Files;
+use crate::files::{self, Files};
 use crate::term::Config;
 
 use super::{Header, Locus, Note};
@@ -172,11 +172,14 @@ where
             primary_labels += 1;
 
             let origin = files.origin(label.file_id).expect("origin");
+            let source = files.source(label.file_id).expect("source");
             let start = label.range.start;
             let line_index = files.line_index(label.file_id, start).expect("line_index");
             let line = files.line(label.file_id, line_index).expect("line");
+            let line_source = &source.as_ref().get(line.range.clone()).unwrap_or("");
+            let column_number = files::column_number(line_source, line.range.start, start);
 
-            Locus::new(origin, line.number, line.column_number(start)).emit(writer, config)?;
+            Locus::new(origin, line.number, column_number).emit(writer, config)?;
             write!(writer, ": ")?;
             Header::new(self.diagnostic).emit(writer, config)?;
         }
