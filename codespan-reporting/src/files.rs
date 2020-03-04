@@ -173,7 +173,7 @@ where
 {
     type FileId = ();
     type Origin = Origin;
-    type LineSource = String;
+    type LineSource = &'a str;
 
     fn origin(&self, (): ()) -> Option<Origin> {
         Some(self.origin.clone())
@@ -186,13 +186,13 @@ where
         }
     }
 
-    fn line(&self, (): (), line_index: usize) -> Option<Line<String>> {
+    fn line(&self, (): (), line_index: usize) -> Option<Line<&str>> {
         let range = self.line_range(line_index)?;
 
         Some(Line {
             start: range.start,
             number: line_index + 1,
-            source: self.source.as_ref()[range].to_owned(),
+            source: &self.source.as_ref()[range],
         })
     }
 }
@@ -237,7 +237,7 @@ where
 {
     type FileId = usize;
     type Origin = Origin;
-    type LineSource = String;
+    type LineSource = &'a str;
 
     fn origin(&self, file_id: usize) -> Option<Origin> {
         Some(self.get(file_id)?.origin().clone())
@@ -247,7 +247,7 @@ where
         self.get(file_id)?.line_index((), byte_index)
     }
 
-    fn line(&self, file_id: usize, line_index: usize) -> Option<Line<String>> {
+    fn line(&self, file_id: usize, line_index: usize) -> Option<Line<&str>> {
         self.get(file_id)?.line((), line_index)
     }
 }
